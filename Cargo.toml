@@ -1,0 +1,16 @@
+[package]
+name = "mavftp-cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+clap = "2.33.3"
+indicatif = "0.17"
+mavlink = { version = "0.10.0", features = [ "ardupilotmega", "emit-extensions"] }
+num-derive = "0.3"
+num-traits = "0.2"
+sha-1 = "0.10.1"
+structopt = "0.3"
+strum = "0.21"
+strum_macros = "0.21"
