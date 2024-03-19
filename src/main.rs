@@ -1,5 +1,4 @@
 mod mavftp;
-use mavftp::*;
 
 mod controller;
 use controller::*;
