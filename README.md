@@ -28,6 +28,28 @@ SUBCOMMANDS:
     write     Write to a file
 ```
 
+```
+$ ./mavftp-cli list
+Type Name                           Size      
+----------------------------------------
+F    ./.Trash-1000                  39 B      
+F    ./.Trashes                     39 B      
+D    ./.fseventsd                             
+F    ./.metadata_never_index        39 B      
+D    ./APM                                    
+F    ./dataman                      61.1 KB   
+D    ./log                                    
+F    ./param_import_fail.bson       16.0 KB   
+F    ./param_import_fail.txt        1.1 KB    
+F    ./parameters_backup.bson       454 B 
+```
+
+```
+$ ./mavftp-cli read ./APM/LOGS/00000001.BIN
+  [00:00:01] [##############################] 514.02 KiB/514.02 KiB (0.0s)
+calculated crc: 0xd33fda9f
+```
+
 ## Grab it
 ### Downloads :package:
 
