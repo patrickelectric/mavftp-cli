@@ -202,7 +202,7 @@ impl Controller {
                             file: OpenOptions::new()
                                 .write(true)
                                 .create(true)
-                                .open("/tmp/potato2")
+                                .open(status.path.split('/').last().unwrap())
                                 .unwrap(),
                         }));
 
@@ -216,7 +216,7 @@ impl Controller {
                                 payload.data[2],
                                 payload.data[3],
                             ]);
-                            println!("0x{:x?}", crc);
+                            println!("crc: 0x{:x?}", crc);
                             exit(0);
                         }
                     }
@@ -277,15 +277,16 @@ impl Controller {
                                 progress.finish();
                             }
 
-                            self.waiting = false;
-                            self.status = None;
-
                             // Lets get the crc
                             let mut buffer = Vec::new();
-                            let mut file = std::fs::File::open("/tmp/potato2").unwrap();
+                            let mut file = std::fs::File::open(status.path.split('/').last().unwrap()).unwrap();
                             file.read_to_end(&mut buffer).unwrap();
                             let crc = mavlink_crc32(&buffer);
-                            println!("{:08x}", crc);
+                            println!("calculated crc: 0x{:08x}", crc);
+
+                            self.status = None;
+                            self.waiting = false;
+
                             return None;
                         }
                     }
