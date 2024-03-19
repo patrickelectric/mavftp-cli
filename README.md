@@ -29,7 +29,7 @@ SUBCOMMANDS:
 ```
 
 ```
-$ ./mavftp-cli list
+$ ./mavftp-cli --connection serial:/dev/ttyACM2:115200 list
 Type Name                           Size      
 ----------------------------------------
 F    ./.Trash-1000                  39 B      
@@ -45,7 +45,7 @@ F    ./parameters_backup.bson       454 B
 ```
 
 ```
-$ ./mavftp-cli read ./APM/LOGS/00000001.BIN
+$ ./mavftp-cli --connection serial:/dev/ttyACM2:115200 read ./APM/LOGS/00000001.BIN
   [00:00:01] [##############################] 514.02 KiB/514.02 KiB (0.0s)
 calculated crc: 0xd33fda9f
 ```
