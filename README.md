@@ -48,6 +48,9 @@ F    ./parameters_backup.bson       454 B
 $ ./mavftp-cli --connection serial:/dev/ttyACM2:115200 read ./APM/LOGS/00000001.BIN
   [00:00:01] [##############################] 514.02 KiB/514.02 KiB (0.0s)
 calculated crc: 0xd33fda9f
+
+$ ls -lah 00000001.BIN 
+-rw-r--r-- 1 patrick patrick 515K Mar 19 11:19 00000001.BIN
 ```
 
 ## Grab it
