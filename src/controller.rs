@@ -16,6 +16,7 @@ enum OperationStatus {
     ReadingFile(ReadingFileStatus),
     Reset,
     CalcFileCRC32(CalcFileCRC32Status),
+    ClosingSession
 }
 
 struct ScanningFolderStatus {
@@ -117,7 +118,7 @@ impl Controller {
                     usize::MAX,
                 ));
             }
-            None => return None,
+            _ => return None,
         }
     }
 
@@ -232,46 +233,27 @@ impl Controller {
                             progress.set_position(status.offset as u64);
                         }
 
-                        if payload.burst_complete == 1 {
-                            self.waiting = true;
-                            return Some(mavlink::common::MavMessage::FILE_TRANSFER_PROTOCOL(
-                                mavlink::common::FILE_TRANSFER_PROTOCOL_DATA {
-                                    target_network: 0,
-                                    target_system: 1,
-                                    target_component: 1,
-                                    payload: MavlinkFtpPayload::new_read_file(
-                                        payload.seq_number + 1,
-                                        self.session,
-                                        status.offset,
-                                        usize::MAX,
-                                    )
-                                    .to_bytes(),
-                                },
-                            ));
-                        }
-
                         if status.offset < status.file_size {
                             self.waiting = true;
-                            return None;
-                            /*
-                            return Some(mavlink::common::MavMessage::FILE_TRANSFER_PROTOCOL(
-                                mavlink::common::FILE_TRANSFER_PROTOCOL_DATA {
-                                    target_network: 0,
-                                    target_system: 1,
-                                    target_component: 1,
-                                    payload: MavlinkFtpPayload::new(
-                                        1,
-                                        self.session,
-                                        MavlinkFtpOpcode::BurstReadFile,
-                                        MavlinkFtpOpcode::None,
-                                        0,
-                                        status.offset,
-                                        status.path.as_bytes().to_vec(),
-                                    )
-                                    .to_bytes(),
-                                },
-                            ));
-                             */
+                            
+                            if payload.burst_complete == 1 {
+                                return Some(mavlink::common::MavMessage::FILE_TRANSFER_PROTOCOL(
+                                    mavlink::common::FILE_TRANSFER_PROTOCOL_DATA {
+                                        target_network: 0,
+                                        target_system: 1,
+                                        target_component: 1,
+                                        payload: MavlinkFtpPayload::new_read_file(
+                                            payload.seq_number + 1,
+                                            self.session,
+                                            status.offset,
+                                            usize::MAX,
+                                        )
+                                        .to_bytes(),
+                                    },
+                                ));
+                            } else {
+                                return None;
+                            }
                         } else {
                             if let Some(progress) = &self.progress {
                                 progress.finish();
@@ -284,11 +266,26 @@ impl Controller {
                             let crc = mavlink_crc32(&buffer);
                             println!("calculated crc: 0x{:08x}", crc);
 
-                            self.status = None;
-                            self.waiting = false;
+                            self.status = Some(OperationStatus::ClosingSession);
+                            self.waiting = true;
 
-                            return None;
+                            return Some(mavlink::common::MavMessage::FILE_TRANSFER_PROTOCOL(
+                                mavlink::common::FILE_TRANSFER_PROTOCOL_DATA {
+                                    target_network: 0,
+                                    target_system: 1,
+                                    target_component: 1,
+                                    payload: MavlinkFtpPayload::new_terminate_session(
+                                        payload.seq_number + 1,
+                                        self.session,
+                                    )
+                                    .to_bytes(),
+                                },
+                            ));
                         }
+                    }
+                    Some(OperationStatus::ClosingSession) => {
+                        println!("session closed");
+                        exit(0);
                     }
                     None => return None,
                 }
